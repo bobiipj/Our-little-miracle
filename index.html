@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05091f">
+<title>Our Little Miracle — Bobin & Amrutha</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap');
+:root{--gold:#f0c98c;--cream:#fff7e8;--night:#030617}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--night);color:#fff;font-family:"DM Sans",sans-serif;font-weight:300;overflow-x:hidden}
+section{position:relative;min-height:100svh;overflow:hidden}
+.hero{background:#030617 url("hero-art.png") center top/cover no-repeat;display:flex;align-items:flex-end;justify-content:center;text-align:center}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,5,20,.05),rgba(2,5,20,.08) 55%,#05081d 100%)}
+.heroText{position:relative;z-index:2;padding:0 24px 8vh}
+.heroText p{letter-spacing:.3em;text-transform:uppercase;font-size:11px;color:#f3d6a6}
+.heroText h1{font-family:"Cormorant Garamond";font-size:clamp(52px,12vw,120px);line-height:.78;font-weight:400;margin:12px 0;color:var(--cream)}
+.heroText .names{font-family:"Cormorant Garamond";font-size:32px;color:var(--gold);font-style:italic}
+.scroll{margin-top:24px;color:#fff;opacity:.75;font-size:11px;letter-spacing:.12em}
+.music{position:fixed;z-index:50;top:18px;right:18px;border:1px solid rgba(240,201,140,.55);background:rgba(3,6,23,.55);backdrop-filter:blur(12px);color:var(--gold);border-radius:50%;width:48px;height:48px;font-size:18px}
+.story{background:radial-gradient(circle at 50% 0,rgba(82,75,145,.22),transparent 35%),linear-gradient(#05081d,#080b2b);padding:90px 18px}
+.wrap{max-width:1100px;margin:auto;text-align:center}.eyebrow{text-transform:uppercase;letter-spacing:.32em;color:var(--gold);font-size:10px}.story h2,.invite h2,.ending h2{font:400 clamp(46px,8vw,78px)/.9 "Cormorant Garamond";margin:16px 0;color:var(--cream)}
+.intro{font:400 25px/1.35 "Cormorant Garamond";max-width:760px;margin:20px auto;color:#f5e8d2}
+.body{max-width:700px;margin:20px auto;color:rgba(255,255,255,.72);line-height:1.85;font-size:15px}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;margin-top:55px;background:rgba(240,201,140,.18)}
+.card{min-height:290px;padding:25px 17px;background:rgba(5,8,29,.86);display:flex;flex-direction:column;justify-content:flex-end}
+.card .icon{font-size:28px;color:var(--gold);margin-bottom:auto}.card h3{font:500 29px/1 "Cormorant Garamond";color:#fff0d3;margin:14px 0}.card p{font-size:13px;line-height:1.55;color:rgba(255,255,255,.65)}
+.family{padding:70px 18px;background:linear-gradient(#080b2b,#030617);text-align:center}.familyQuote{font:italic 32px/1.25 "Cormorant Garamond";max-width:800px;margin:18px auto;color:#f2d5aa}
+.invite{padding:100px 18px;background:radial-gradient(circle at 70% 30%,rgba(140,105,170,.18),transparent 28%),url("hero-art.png") center/cover fixed}.invite:after{content:"";position:absolute;inset:0;background:rgba(3,6,23,.7)}.invite .wrap{position:relative;z-index:2}
+.details{display:grid;grid-template-columns:repeat(3,1fr);max-width:900px;margin:50px auto 0;border-top:1px solid rgba(240,201,140,.35);border-bottom:1px solid rgba(240,201,140,.2)}
+.detail{padding:30px 12px}.detail span{display:block;text-transform:uppercase;letter-spacing:.2em;font-size:10px;color:rgba(255,255,255,.55)}.detail strong{display:block;font:500 29px "Cormorant Garamond";color:var(--gold);margin:9px 0}
+.map{display:inline-block;margin-top:35px;padding:13px 24px;border:1px solid var(--gold);border-radius:999px;color:var(--cream);text-decoration:none;font-size:12px;letter-spacing:.08em}
+.ending{min-height:85svh;display:flex;align-items:center;justify-content:center;text-align:center;padding:60px 18px;background:radial-gradient(circle,#1c1743 0,#05081d 55%,#01030e 100%)}
+.ending h2{font-size:clamp(60px,12vw,120px)}.ending .names{font:italic 31px "Cormorant Garamond";color:var(--gold)}
+footer{text-align:center;padding:22px;background:#01030e;color:rgba(255,255,255,.38);font-size:10px;letter-spacing:.16em}
+@media(max-width:760px){.hero{min-height:92svh;background-position:50% top}.timeline{grid-template-columns:1fr}.card{min-height:180px;text-align:left}.details{grid-template-columns:1fr}.detail{border-bottom:1px solid rgba(240,201,140,.14)}.invite{background-attachment:scroll}}
+</style>
+</head>
+<body>
+<button class="music" id="music" aria-label="Play music">♫</button>
+
+<section class="hero">
+  <div class="heroText">
+    <p>A little miracle is on the way</p>
+    <h1>Our Little<br>Miracle</h1>
+    <div class="names">with love, Bobin &amp; Amrutha</div>
+    <div class="scroll">SCROLL TO BEGIN OUR STORY ↓</div>
+  </div>
+</section>
+
+<section class="story">
+  <div class="wrap">
+    <div class="eyebrow">Our story</div>
+    <h2>A story written by love,<br>sealed in Mexico.</h2>
+    <div class="intro">Somewhere between two hearts, a beautiful life began.</div>
+    <div class="body">We met, we fell in love, and our love slowly bloomed into a life we dreamed of building together. Mexico became the backdrop to so many of our most precious chapters — the place where our memories grew, our promises became forever, and our little family began.</div>
+    <div class="timeline">
+      <article class="card"><div class="icon">✧</div><h3>We Bloomed</h3><p>Two souls met, and something beautiful quietly began.</p></article>
+      <article class="card"><div class="icon">♡</div><h3>We Fell in Love</h3><p>Our hearts found the same rhythm, one little moment at a time.</p></article>
+      <article class="card"><div class="icon">❀</div><h3>Our Love Grew</h3><p>Every memory made our love stronger, warmer and deeper.</p></article>
+      <article class="card"><div class="icon">♢</div><h3>We Said I Do</h3><p>We chose forever and began building our life together in Mexico.</p></article>
+      <article class="card"><div class="icon">★</div><h3>And Now…</h3><p>Our greatest little miracle is bringing a new kind of love into our world.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="family">
+  <div class="wrap">
+    <div class="eyebrow">To the people who became family</div>
+    <div class="familyQuote">“You have not simply witnessed our journey. You have been part of it.”</div>
+    <div class="body">You saw us when our story was only beginning. You celebrated our love, stood beside us through the chapters, shared our laughter and became family along the way. So this moment would not feel complete without you.</div>
+  </div>
+</section>
+
+<section class="invite" id="invite">
+  <div class="wrap">
+    <div class="eyebrow">Under the same moon</div>
+    <h2>Come celebrate<br>our little miracle.</h2>
+    <div class="intro">We would love to have you with us as we celebrate this beautiful new chapter.</div>
+    <div class="details">
+      <div class="detail"><span>Date</span><strong>04 September 2026</strong><span>Friday</span></div>
+      <div class="detail"><span>Time</span><strong>4:00 PM – 9:00 PM</strong><span>Evening celebration</span></div>
+      <div class="detail"><span>Venue</span><strong>Los Palmeras Arboledas Terraza</strong><span>Mexico</span></div>
+    </div>
+    <a class="map" href="https://www.google.com/maps/search/?api=1&query=Los%20Palmeras%20Arboledas%20Terraza" target="_blank">⌖ OPEN IN MAPS</a>
+  </div>
+</section>
+
+<section class="ending">
+  <div>
+    <div class="eyebrow">One more beautiful chapter</div>
+    <h2>Let's make<br>this memory<br>together.</h2>
+    <div class="names">With all our love,<br>Bobin &amp; Amrutha ♡</div>
+  </div>
+</section>
+<footer>OUR LITTLE MIRACLE · A NIGHT OF LOVE, LIGHT &amp; WONDER</footer>
+
+<script>
+let audio, master, playing=false, loop;
+const btn=document.getElementById("music");
+function tone(f,t,d,g,type="sine"){let o=audio.createOscillator(),a=audio.createGain();o.type=type;o.frequency.value=f;a.gain.setValueAtTime(.0001,t);a.gain.exponentialRampToValueAtTime(g,t+.15);a.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(a);a.connect(master);o.start(t);o.stop(t+d+.1)}
+function phrase(){let n=audio.currentTime,s=[261.63,329.63,392,523.25,440,392,329.63,293.66];s.forEach((f,i)=>tone(f,n+i*.72,1.8,.022));tone(130.81,n,5,.008,"triangle");tone(196,n+2.15,5,.007,"triangle")}
+btn.onclick=()=>{if(playing){clearInterval(loop);audio.close();playing=false;btn.textContent="♫";return} audio=new (window.AudioContext||window.webkitAudioContext)();master=audio.createGain();master.gain.value=.75;master.connect(audio.destination);phrase();loop=setInterval(phrase,5800);playing=true;btn.textContent="Ⅱ"};
+</script>
+</body>
+</html>
