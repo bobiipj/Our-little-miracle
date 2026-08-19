@@ -22,6 +22,59 @@
 <body>
 
 <canvas id="starfield"></canvas>
+
+<!-- distant sky décor: moon + slowly rotating planets, parallax on scroll -->
+<div class="sky-decor" aria-hidden="true">
+  <div class="bg-moon" id="bgMoon">
+    <svg viewBox="0 0 120 120">
+      <defs>
+        <radialGradient id="bgMoonGrad" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stop-color="#fffaee"/>
+          <stop offset="55%" stop-color="#f3dfa0"/>
+          <stop offset="100%" stop-color="#c9a45c"/>
+        </radialGradient>
+      </defs>
+      <circle cx="60" cy="60" r="46" fill="url(#bgMoonGrad)"/>
+      <circle cx="42" cy="40" r="6" fill="#c9a45c" opacity="0.35"/>
+      <circle cx="74" cy="70" r="9" fill="#c9a45c" opacity="0.28"/>
+      <circle cx="36" cy="72" r="4" fill="#c9a45c" opacity="0.32"/>
+    </svg>
+  </div>
+  <div class="bg-planet-wrap planet-1-wrap" id="planet1Wrap">
+    <div class="bg-planet planet-1">
+      <svg viewBox="0 0 100 100">
+        <ellipse cx="50" cy="52" rx="46" ry="13" fill="none" stroke="#c9c6ea" stroke-width="2.4" opacity="0.55" transform="rotate(-18 50 52)"/>
+        <circle cx="50" cy="50" r="24" fill="#dcb35c"/>
+        <circle cx="50" cy="50" r="24" fill="url(#planetShade)"/>
+        <defs>
+          <radialGradient id="planetShade" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#f3dfa0" stop-opacity="0.9"/>
+            <stop offset="70%" stop-color="#b8863f" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#7a5a2c" stop-opacity="0.55"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="50" cy="48" rx="46" ry="13" fill="none" stroke="#e9c874" stroke-width="1.6" opacity="0.4" transform="rotate(-18 50 48)"/>
+      </svg>
+    </div>
+  </div>
+  <div class="bg-planet-wrap planet-2-wrap" id="planet2Wrap">
+    <div class="bg-planet planet-2">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="30" fill="#9a97c4"/>
+        <circle cx="50" cy="50" r="30" fill="url(#planet2Shade)"/>
+        <defs>
+          <radialGradient id="planet2Shade" cx="32%" cy="28%" r="80%">
+            <stop offset="0%" stop-color="#e6e3ff" stop-opacity="0.8"/>
+            <stop offset="65%" stop-color="#7b78a8" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#4c497a" stop-opacity="0.5"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="flash-overlay" id="flashOverlay" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
 <audio id="bgMusic" src="audio/background-music.mp3" loop preload="auto"></audio>
 
@@ -190,6 +243,18 @@
       Please join us as we celebrate the little life
       about to change ours forever.
     </p>
+  </section>
+
+  <!-- ============ COUNTDOWN ============ -->
+  <section class="panel countdown" data-reveal>
+    <p class="kicker">✦ counting down ✦</p>
+    <h2 class="heading">Until We Celebrate</h2>
+    <div class="countdown-grid" id="countdown" aria-live="polite">
+      <div class="cd-unit"><span class="cd-num" id="cdDays">00</span><span class="cd-label">Days</span></div>
+      <div class="cd-unit"><span class="cd-num" id="cdHours">00</span><span class="cd-label">Hours</span></div>
+      <div class="cd-unit"><span class="cd-num" id="cdMins">00</span><span class="cd-label">Minutes</span></div>
+      <div class="cd-unit"><span class="cd-num" id="cdSecs">00</span><span class="cd-label">Seconds</span></div>
+    </div>
   </section>
 
   <!-- ============ EVENT DETAILS ============ -->

@@ -50,6 +50,52 @@ body{
   background:radial-gradient(ellipse at 50% 40%, transparent 45%, rgba(2,4,14,0.55) 100%);
 }
 
+/* ---------- distant sky décor: moon + planets, parallax + slow rotation ---------- */
+.sky-decor{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.bg-moon{
+  position:absolute;
+  top:6%;
+  right:6%;
+  width:min(130px, 20vw);
+  filter:drop-shadow(0 0 30px rgba(243,223,160,0.3));
+  animation:bgMoonGlow 6s ease-in-out infinite;
+  will-change:transform;
+}
+.bg-moon svg{display:block;width:100%;height:auto;}
+@keyframes bgMoonGlow{
+  0%,100%{filter:drop-shadow(0 0 26px rgba(243,223,160,0.25));}
+  50%{filter:drop-shadow(0 0 46px rgba(243,223,160,0.45));}
+}
+.bg-planet-wrap{
+  position:absolute;
+  will-change:transform;
+}
+.planet-1-wrap{top:20%;left:-5%;}
+.planet-2-wrap{bottom:8%;right:-4%;}
+.bg-planet{opacity:0.5;}
+.planet-1{
+  width:min(88px, 15vw);
+  animation:planetSpin 42s linear infinite;
+}
+.planet-2{
+  width:min(56px, 10vw);
+  animation:planetSpin 60s linear infinite reverse;
+}
+.bg-planet svg{display:block;width:100%;height:auto;}
+@keyframes planetSpin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+@media (max-width:600px){
+  .bg-moon{top:4%;right:4%;}
+}
+
 /* ================= GATE ================= */
 .gate{
   position:fixed;
@@ -135,10 +181,41 @@ body{
   display:inline-flex;
   filter:drop-shadow(0 0 12px rgba(243,223,160,0.65));
   animation:moonPulse 3.2s ease-in-out infinite;
+  transition:transform 0.7s cubic-bezier(.6,0,.9,.4), opacity 0.6s ease 0.3s;
 }
 @keyframes moonPulse{
   0%,100%{filter:drop-shadow(0 0 10px rgba(243,223,160,0.5));}
   50%{filter:drop-shadow(0 0 22px rgba(243,223,160,0.85));}
+}
+
+/* "flying through the moon" launch effect on entry */
+.enter-btn.launching .moon-icon{
+  animation:none;
+  transform:scale(16);
+  opacity:0;
+}
+.enter-btn.launching .enter-label,
+.enter-btn.launching .gate-hint{
+  opacity:0;
+  transition:opacity 0.4s ease;
+}
+.enter-btn.launching{pointer-events:none;}
+
+.flash-overlay{
+  position:fixed;
+  inset:0;
+  z-index:60;
+  background:radial-gradient(circle at 50% 55%, #fffbee 0%, #f3dfa0 20%, rgba(243,223,160,0.4) 40%, transparent 72%);
+  opacity:0;
+  pointer-events:none;
+}
+.flash-overlay.flashing{
+  animation:flashPulse 0.9s ease-out forwards;
+}
+@keyframes flashPulse{
+  0%{opacity:0; transform:scale(0.25);}
+  40%{opacity:1; transform:scale(1.5);}
+  100%{opacity:0; transform:scale(3);}
 }
 
 .enter-label{
@@ -355,6 +432,59 @@ body{
   50%{opacity:1;transform:scale(1.08);}
 }
 
+/* ---------- countdown ---------- */
+.countdown-grid{
+  display:flex;
+  gap:0.9rem;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:1.8rem;
+}
+.cd-unit{
+  min-width:74px;
+  padding:1rem 0.6rem;
+  background:rgba(20,27,69,0.4);
+  border:1px solid rgba(233,200,116,0.25);
+  border-radius:14px;
+  backdrop-filter:blur(8px);
+}
+.cd-num{
+  display:block;
+  font-family:'Playfair Display', serif;
+  font-size:clamp(1.7rem,5vw,2.3rem);
+  color:var(--gold);
+  line-height:1;
+  text-shadow:0 0 16px rgba(233,200,116,0.3);
+  font-variant-numeric:tabular-nums;
+}
+.cd-label{
+  display:block;
+  margin-top:0.5rem;
+  font-size:0.68rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--lavender-dim);
+}
+
+/* ---------- star-burst confetti (add-to-calendar) ---------- */
+.star-burst{
+  position:fixed;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--gold-soft);
+  box-shadow:0 0 6px 2px rgba(233,200,116,0.6);
+  pointer-events:none;
+  z-index:70;
+  animation-name:burstFly;
+  animation-timing-function:ease-out;
+  animation-fill-mode:forwards;
+}
+@keyframes burstFly{
+  0%{transform:translate(-50%,-50%) scale(1); opacity:1;}
+  100%{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.2); opacity:0;}
+}
+
 /* ---------- details card ---------- */
 .detail-card{
   margin-top:2.4rem;
@@ -461,32 +591,32 @@ body{
   letter-spacing:0.1em;
 }
 
-/* ---------- shooting star ---------- */
+/* ---------- comet / shooting star ---------- */
 .shooting-star{
   position:fixed;
   top:0;
   left:0;
-  width:2px;
-  height:2px;
+  width:3px;
+  height:3px;
   border-radius:50%;
   background:var(--cream);
-  box-shadow:0 0 6px 1px rgba(255,255,255,0.8);
+  box-shadow:0 0 10px 2px rgba(255,251,238,0.9);
   z-index:1;
   pointer-events:none;
-  animation:shoot 1.6s linear forwards;
+  animation:shoot 1.7s linear forwards;
 }
 @keyframes shoot{
   0%{transform:translate(0,0) scale(0.4);opacity:0;}
   8%{opacity:1;}
-  100%{transform:translate(-420px,320px) scale(0.4);opacity:0;}
+  100%{transform:translate(-460px,340px) scale(0.4);opacity:0;}
 }
 .shooting-star::before{
   content:'';
   position:absolute;
-  top:0;left:0;
-  width:120px;
-  height:1px;
-  background:linear-gradient(90deg, rgba(255,255,255,0.9), transparent);
+  top:1px;left:1px;
+  width:150px;
+  height:1.6px;
+  background:linear-gradient(90deg, rgba(255,251,238,0.95), rgba(233,200,116,0.35), transparent);
   transform:translate(2px,1px) rotate(180deg);
   transform-origin:left center;
 }

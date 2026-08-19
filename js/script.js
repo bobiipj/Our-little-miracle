@@ -2,20 +2,23 @@
   'use strict';
 
   /* ============================================================
-     STARFIELD — twinkling background stars on a canvas
+     STARFIELD — twinkling stars on a viewport-sized canvas, with a
+     slow vertical drift tied to scroll (parallax: much slower than
+     the page itself, tiling infinitely via modulo wrap)
   ============================================================ */
   const canvas = document.getElementById('starfield');
   const ctx = canvas.getContext('2d');
   let stars = [];
   let W, H;
+  let scrollY = 0;
 
   function resize() {
     W = canvas.width = window.innerWidth;
-    H = canvas.height = document.documentElement.scrollHeight;
+    H = canvas.height = window.innerHeight;
   }
 
   function makeStars() {
-    const count = Math.floor((W * H) / 9000);
+    const count = Math.floor((W * H) / 7000);
     stars = new Array(count).fill(0).map(() => ({
       x: Math.random() * W,
       y: Math.random() * H,
@@ -30,11 +33,13 @@
   let t = 0;
   function drawStars() {
     ctx.clearRect(0, 0, W, H);
+    const offset = scrollY * 0.06;
     for (const s of stars) {
+      const y = ((s.y + offset) % H + H) % H;
       const alpha = s.baseAlpha + Math.sin(t * s.speed * 60 + s.phase) * 0.3;
       ctx.beginPath();
       ctx.fillStyle = `rgba(${s.hue},${Math.max(0.05, alpha)})`;
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.arc(s.x, y, s.r, 0, Math.PI * 2);
       ctx.fill();
     }
     t += 0.016;
@@ -52,6 +57,77 @@
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => { resize(); makeStars(); }, 200);
   });
+
+  /* ============================================================
+     SKY PARALLAX — moon & planets drift gently on scroll, each at
+     a different depth, layered under the rotating-planet CSS anim
+  ============================================================ */
+  function initSkyParallax() {
+    const moon = document.getElementById('bgMoon');
+    const p1 = document.getElementById('planet1Wrap');
+    const p2 = document.getElementById('planet2Wrap');
+    let raf = null;
+
+    function update() {
+      scrollY = window.scrollY;
+      if (moon) moon.style.transform = `translateY(${scrollY * 0.035}px)`;
+      if (p1) p1.style.transform = `translateY(${scrollY * 0.07}px)`;
+      if (p2) p2.style.transform = `translateY(${scrollY * 0.05}px)`;
+      raf = null;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    }, { passive: true });
+    update();
+  }
+
+  /* ============================================================
+     COUNTDOWN — live countdown to the event
+  ============================================================ */
+  function initCountdown() {
+    const dEl = document.getElementById('cdDays');
+    const hEl = document.getElementById('cdHours');
+    const mEl = document.getElementById('cdMins');
+    const sEl = document.getElementById('cdSecs');
+    if (!dEl) return;
+    const target = new Date('2026-09-04T23:00:00Z').getTime(); // 5:00 PM CST (UTC-6)
+
+    function tick() {
+      const diff = Math.max(0, target - Date.now());
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      dEl.textContent = String(days).padStart(2, '0');
+      hEl.textContent = String(hours).padStart(2, '0');
+      mEl.textContent = String(mins).padStart(2, '0');
+      sEl.textContent = String(secs).padStart(2, '0');
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* ============================================================
+     STAR-BURST — a little confetti of sparkles from a click point
+  ============================================================ */
+  function burstStars(x, y) {
+    const count = 18;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'star-burst';
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 55 + Math.random() * 95;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+      el.style.setProperty('--dy', (Math.sin(angle) * dist) + 'px');
+      el.style.animationDuration = (0.7 + Math.random() * 0.5) + 's';
+      if (Math.random() < 0.4) el.style.background = 'var(--cream)';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+  }
 
   /* ============================================================
      SHOOTING STARS — occasional streak across the sky
@@ -113,24 +189,27 @@
   })();
 
   /* ============================================================
-     GATE — tap the moon to begin the experience
+     GATE — tap the moon to begin: a "flying into the sky" transition
   ============================================================ */
   const gate = document.getElementById('gate');
   const enterBtn = document.getElementById('enterBtn');
   const mainEl = document.getElementById('main');
   const soundToggle = document.getElementById('soundToggle');
+  const flashOverlay = document.getElementById('flashOverlay');
   let muted = false;
 
   enterBtn.addEventListener('click', () => {
+    enterBtn.classList.add('launching');
+    flashOverlay.classList.add('flashing');
     Music.start();
-    gate.classList.add('gate-hidden');
-    mainEl.classList.remove('hidden');
-    requestAnimationFrame(() => {
+
+    setTimeout(() => {
+      gate.classList.add('gate-hidden');
+      mainEl.classList.remove('hidden');
       mainEl.classList.add('revealed');
-    });
-    initRevealObserver();
-    scheduleShootingStars();
-    setTimeout(resize, 50); // ensure starfield covers full scrollable height
+      initRevealObserver();
+      scheduleShootingStars();
+    }, 550);
   }, { once: true });
 
   soundToggle.addEventListener('click', () => {
@@ -163,6 +242,7 @@
   if (calendarBtn) {
     calendarBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      burstStars(e.clientX, e.clientY);
       const ics = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
@@ -199,4 +279,6 @@
      INIT
   ============================================================ */
   initStarfield();
+  initSkyParallax();
+  initCountdown();
 })();
