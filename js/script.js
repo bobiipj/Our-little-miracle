@@ -95,7 +95,7 @@
 
     function start() {
       el.volume = 0;
-      el.play().catch(() => {});
+      el.play().catch((err) => console.warn('Playback blocked, will retry on toggle:', err));
       fadeTo(targetVolume, 1800);
     }
 
@@ -104,6 +104,8 @@
     }
 
     function unmute() {
+      // if the initial autoplay attempt was blocked, this manual tap retries it
+      if (el.paused) el.play().catch(() => {});
       fadeTo(targetVolume, 700);
     }
 
