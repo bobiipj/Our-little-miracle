@@ -130,6 +130,33 @@
   }
 
   /* ============================================================
+     SCROLL PROGRESS — a comet traces your path down the story
+  ============================================================ */
+  function initScrollProgress() {
+    const fill = document.getElementById('scrollProgressFill');
+    const comet = document.getElementById('scrollProgressComet');
+    if (!fill || !comet) return;
+    let raf = null;
+
+    function update() {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - window.innerHeight;
+      const pct = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      fill.style.height = (pct * 100) + '%';
+      comet.style.top = (pct * 100) + '%';
+      raf = null;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    }, { passive: true });
+    window.addEventListener('resize', () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    });
+    update();
+  }
+
+  /* ============================================================
      STARDUST TRAIL — faint sparkles follow the pointer/finger
   ============================================================ */
   function initStardustTrail() {
@@ -248,6 +275,8 @@
       initRevealObserver();
       scheduleShootingStars();
       initStardustTrail();
+      const progress = document.getElementById('scrollProgress');
+      if (progress) progress.classList.add('visible');
     }, 550);
   }, { once: true });
 
@@ -321,4 +350,5 @@
   initStarfield();
   initSkyParallax();
   initCountdown();
+  initScrollProgress();
 })();

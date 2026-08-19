@@ -614,6 +614,46 @@ body{
   letter-spacing:0.1em;
 }
 
+/* ---------- scroll progress: a comet tracing your path through the story ---------- */
+.scroll-progress{
+  position:fixed;
+  top:8%;
+  bottom:8%;
+  right:10px;
+  width:3px;
+  z-index:45;
+  background:rgba(233,200,116,0.12);
+  border-radius:3px;
+  opacity:0;
+  transition:opacity 1s ease;
+  pointer-events:none;
+}
+.scroll-progress.visible{opacity:1;}
+.scroll-progress-fill{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:0%;
+  background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+  border-radius:3px;
+  box-shadow:0 0 10px rgba(233,200,116,0.5);
+}
+.scroll-progress-comet{
+  position:absolute;
+  left:50%;
+  top:0%;
+  width:9px;
+  height:9px;
+  margin:-4.5px 0 0 -4.5px;
+  border-radius:50%;
+  background:var(--cream);
+  box-shadow:0 0 12px 3px rgba(246,239,224,0.85), 0 0 20px 6px rgba(233,200,116,0.4);
+}
+@media (max-width:600px){
+  .scroll-progress{right:6px; top:6%; bottom:6%;}
+}
+
 /* ---------- stardust cursor trail ---------- */
 .stardust{
   position:fixed;
