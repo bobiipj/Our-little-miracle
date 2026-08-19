@@ -74,7 +74,9 @@
   }
 
   /* ============================================================
-     GENERATIVE MUSIC — soft music-box lullaby, no audio files
+     GENERATIVE MUSIC — an original little "fairy song", no audio files
+     Bell/celesta tones in a bright Lydian mode, arranged as a light,
+     twinkling arpeggio — evokes a fairy-tale music box, not a lullaby.
   ============================================================ */
   const Music = (() => {
     let actx = null;
@@ -86,17 +88,16 @@
     let schedulerId = null;
     let padOsc = [];
 
-    // A gentle pentatonic melody (Db major pentatonic-ish), original composition.
+    // Lydian mode (raised 4th) gives that bright, floating "fairy-tale" colour.
     // Each entry: [semitone offset from base, beat length]
     const base = 261.63; // C4
-    const scaleSteps = [0, 2, 4, 7, 9, 12, 14, 16]; // major pentatonic across 2 octaves
     const melody = [
-      [4, 1], [7, 1], [9, 2], [7, 1], [4, 1],
-      [2, 2], [0, 1], [4, 1], [7, 2],
-      [9, 1], [12, 1], [9, 2], [7, 1], [4, 1],
-      [2, 1], [0, 2], [4, 2],
+      [0, 0.5], [4, 0.5], [7, 0.5], [11, 0.5], [12, 1],
+      [11, 0.5], [9, 0.5], [7, 0.5], [4, 0.5], [2, 1],
+      [4, 0.5], [7, 0.5], [9, 0.5], [12, 0.5], [16, 1.5],
+      [12, 0.5], [9, 0.5], [7, 0.5], [4, 0.5], [0, 1.5],
     ];
-    const beatDur = 0.62;
+    const beatDur = 0.36;
 
     function freqFromStep(step) {
       return base * Math.pow(2, step / 12);
@@ -127,30 +128,38 @@
     }
 
     function playNote(freq, time, dur, gainScale = 1) {
+      // bell / celesta timbre: fast attack, bright shimmer overtone, quick decay
       const osc = actx.createOscillator();
-      const sub = actx.createOscillator();
+      const shimmer = actx.createOscillator();
       const g = actx.createGain();
-      osc.type = 'triangle';
-      sub.type = 'sine';
+      const shimmerGain = actx.createGain();
+      osc.type = 'sine';
+      shimmer.type = 'sine';
       osc.frequency.value = freq;
-      sub.frequency.value = freq / 2;
+      shimmer.frequency.value = freq * 2.01; // slightly detuned octave = sparkle
 
       g.gain.setValueAtTime(0, time);
-      g.gain.linearRampToValueAtTime(0.22 * gainScale, time + 0.04);
-      g.gain.exponentialRampToValueAtTime(0.001, time + dur * 0.95);
+      g.gain.linearRampToValueAtTime(0.24 * gainScale, time + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.001, time + dur * 0.9);
+
+      shimmerGain.gain.setValueAtTime(0, time);
+      shimmerGain.gain.linearRampToValueAtTime(0.07 * gainScale, time + 0.006);
+      shimmerGain.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.5);
 
       osc.connect(g);
-      sub.connect(g);
+      shimmer.connect(shimmerGain);
       g.connect(masterGain);
+      shimmerGain.connect(masterGain);
 
       osc.start(time);
-      sub.start(time);
+      shimmer.start(time);
       osc.stop(time + dur);
-      sub.stop(time + dur);
+      shimmer.stop(time + dur);
     }
 
     function startPad() {
-      const chordFreqs = [base / 2, base * Math.pow(2, 4 / 12) / 2, base * Math.pow(2, 7 / 12) / 2];
+      // airy Lydian triad, very soft — background shimmer, not a lullaby drone
+      const chordFreqs = [base / 2, base * Math.pow(2, 4 / 12) / 2, base * Math.pow(2, 11 / 12) / 2];
       padGain = actx.createGain();
       padGain.gain.value = 0;
       padGain.connect(masterGain);
@@ -162,7 +171,7 @@
         o.start();
         return o;
       });
-      padGain.gain.linearRampToValueAtTime(0.05, actx.currentTime + 3);
+      padGain.gain.linearRampToValueAtTime(0.035, actx.currentTime + 3);
     }
 
     function scheduler() {
@@ -174,9 +183,9 @@
         const dur = beats * beatDur;
         playNote(freq, nextNoteTime, dur);
 
-        // occasional high twinkle harmonic
-        if (Math.random() < 0.22) {
-          playNote(freq * 2, nextNoteTime + dur * 0.4, dur * 0.6, 0.35);
+        // frequent fairy-dust sparkle harmonic, higher up
+        if (Math.random() < 0.4) {
+          playNote(freq * 4, nextNoteTime + dur * 0.3, dur * 0.4, 0.22);
         }
 
         nextNoteTime += dur;
