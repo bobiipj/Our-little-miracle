@@ -74,151 +74,37 @@
   }
 
   /* ============================================================
-     GENERATIVE MUSIC — an original little "fairy song", no audio files
-     Bell/celesta tones in a bright Lydian mode, arranged as a light,
-     twinkling arpeggio — evokes a fairy-tale music box, not a lullaby.
+     MUSIC — background track, faded in/out via the <audio> element
   ============================================================ */
   const Music = (() => {
-    let actx = null;
-    let masterGain = null;
-    let padGain = null;
-    let playing = false;
-    let nextNoteTime = 0;
-    let noteIndex = 0;
-    let schedulerId = null;
-    let padOsc = [];
+    const el = document.getElementById('bgMusic');
+    const targetVolume = 0.6;
+    let fadeRaf = null;
 
-    // Lydian mode (raised 4th) gives that bright, floating "fairy-tale" colour.
-    // Each entry: [semitone offset from base, beat length]
-    const base = 261.63; // C4
-    const melody = [
-      [0, 0.5], [4, 0.5], [7, 0.5], [11, 0.5], [12, 1],
-      [11, 0.5], [9, 0.5], [7, 0.5], [4, 0.5], [2, 1],
-      [4, 0.5], [7, 0.5], [9, 0.5], [12, 0.5], [16, 1.5],
-      [12, 0.5], [9, 0.5], [7, 0.5], [4, 0.5], [0, 1.5],
-    ];
-    const beatDur = 0.36;
-
-    function freqFromStep(step) {
-      return base * Math.pow(2, step / 12);
-    }
-
-    function ensureContext() {
-      if (!actx) {
-        actx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGain = actx.createGain();
-        masterGain.gain.value = 0;
-
-        const delay = actx.createDelay();
-        delay.delayTime.value = 0.34;
-        const feedback = actx.createGain();
-        feedback.gain.value = 0.28;
-        const delayFilter = actx.createBiquadFilter();
-        delayFilter.type = 'lowpass';
-        delayFilter.frequency.value = 2200;
-
-        masterGain.connect(delay);
-        delay.connect(delayFilter);
-        delayFilter.connect(feedback);
-        feedback.connect(delay);
-
-        masterGain.connect(actx.destination);
-        delay.connect(actx.destination);
+    function fadeTo(target, duration) {
+      cancelAnimationFrame(fadeRaf);
+      const start = el.volume;
+      const t0 = performance.now();
+      function step(now) {
+        const p = Math.min(1, (now - t0) / duration);
+        el.volume = start + (target - start) * p;
+        if (p < 1) fadeRaf = requestAnimationFrame(step);
       }
-    }
-
-    function playNote(freq, time, dur, gainScale = 1) {
-      // bell / celesta timbre: fast attack, bright shimmer overtone, quick decay
-      const osc = actx.createOscillator();
-      const shimmer = actx.createOscillator();
-      const g = actx.createGain();
-      const shimmerGain = actx.createGain();
-      osc.type = 'sine';
-      shimmer.type = 'sine';
-      osc.frequency.value = freq;
-      shimmer.frequency.value = freq * 2.01; // slightly detuned octave = sparkle
-
-      g.gain.setValueAtTime(0, time);
-      g.gain.linearRampToValueAtTime(0.24 * gainScale, time + 0.008);
-      g.gain.exponentialRampToValueAtTime(0.001, time + dur * 0.9);
-
-      shimmerGain.gain.setValueAtTime(0, time);
-      shimmerGain.gain.linearRampToValueAtTime(0.07 * gainScale, time + 0.006);
-      shimmerGain.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.5);
-
-      osc.connect(g);
-      shimmer.connect(shimmerGain);
-      g.connect(masterGain);
-      shimmerGain.connect(masterGain);
-
-      osc.start(time);
-      shimmer.start(time);
-      osc.stop(time + dur);
-      shimmer.stop(time + dur);
-    }
-
-    function startPad() {
-      // airy Lydian triad, very soft — background shimmer, not a lullaby drone
-      const chordFreqs = [base / 2, base * Math.pow(2, 4 / 12) / 2, base * Math.pow(2, 11 / 12) / 2];
-      padGain = actx.createGain();
-      padGain.gain.value = 0;
-      padGain.connect(masterGain);
-      padOsc = chordFreqs.map((f) => {
-        const o = actx.createOscillator();
-        o.type = 'sine';
-        o.frequency.value = f;
-        o.connect(padGain);
-        o.start();
-        return o;
-      });
-      padGain.gain.linearRampToValueAtTime(0.035, actx.currentTime + 3);
-    }
-
-    function scheduler() {
-      const lookahead = 0.2;
-      while (nextNoteTime < actx.currentTime + lookahead) {
-        const [step, beats] = melody[noteIndex % melody.length];
-        const octaveShift = Math.floor(noteIndex / melody.length) % 2 === 1 ? 12 : 0;
-        const freq = freqFromStep(step + octaveShift);
-        const dur = beats * beatDur;
-        playNote(freq, nextNoteTime, dur);
-
-        // frequent fairy-dust sparkle harmonic, higher up
-        if (Math.random() < 0.4) {
-          playNote(freq * 4, nextNoteTime + dur * 0.3, dur * 0.4, 0.22);
-        }
-
-        nextNoteTime += dur;
-        noteIndex++;
-      }
-      schedulerId = setTimeout(scheduler, 120);
+      fadeRaf = requestAnimationFrame(step);
     }
 
     function start() {
-      ensureContext();
-      if (actx.state === 'suspended') actx.resume();
-      if (playing) return;
-      playing = true;
-      nextNoteTime = actx.currentTime + 0.1;
-      startPad();
-      scheduler();
-      masterGain.gain.cancelScheduledValues(actx.currentTime);
-      masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
-      masterGain.gain.linearRampToValueAtTime(0.55, actx.currentTime + 2.2);
+      el.volume = 0;
+      el.play().catch(() => {});
+      fadeTo(targetVolume, 1800);
     }
 
     function mute() {
-      if (!actx) return;
-      masterGain.gain.cancelScheduledValues(actx.currentTime);
-      masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
-      masterGain.gain.linearRampToValueAtTime(0, actx.currentTime + 0.8);
+      fadeTo(0, 700);
     }
 
     function unmute() {
-      if (!actx) return;
-      masterGain.gain.cancelScheduledValues(actx.currentTime);
-      masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
-      masterGain.gain.linearRampToValueAtTime(0.55, actx.currentTime + 0.8);
+      fadeTo(targetVolume, 700);
     }
 
     return { start, mute, unmute };
