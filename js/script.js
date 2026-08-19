@@ -130,6 +130,33 @@
   }
 
   /* ============================================================
+     STARDUST TRAIL — faint sparkles follow the pointer/finger
+  ============================================================ */
+  function initStardustTrail() {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+    let last = 0;
+    const minInterval = 45;
+
+    function spawn(x, y) {
+      const el = document.createElement('div');
+      el.className = 'stardust';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      if (Math.random() < 0.35) el.style.background = 'var(--cream)';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+
+    window.addEventListener('pointermove', (e) => {
+      const now = performance.now();
+      if (now - last < minInterval) return;
+      last = now;
+      spawn(e.clientX, e.clientY);
+    }, { passive: true });
+  }
+
+  /* ============================================================
      SHOOTING STARS — occasional streak across the sky
   ============================================================ */
   function spawnShootingStar() {
@@ -210,6 +237,7 @@
 
   enterBtn.addEventListener('click', () => {
     Music.start(); // call first, closest to the trusted click gesture
+    if (navigator.vibrate) navigator.vibrate(15); // tiny haptic "click" on the launch
     enterBtn.classList.add('launching');
     flashOverlay.classList.add('flashing');
 
@@ -219,6 +247,7 @@
       mainEl.classList.add('revealed');
       initRevealObserver();
       scheduleShootingStars();
+      initStardustTrail();
     }, 550);
   }, { once: true });
 

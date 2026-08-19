@@ -614,6 +614,24 @@ body{
   letter-spacing:0.1em;
 }
 
+/* ---------- stardust cursor trail ---------- */
+.stardust{
+  position:fixed;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--gold-soft);
+  box-shadow:0 0 6px 2px rgba(233,200,116,0.5);
+  pointer-events:none;
+  z-index:65;
+  transform:translate(-50%,-50%);
+  animation:stardustFade 0.8s ease-out forwards;
+}
+@keyframes stardustFade{
+  0%{opacity:0.85; transform:translate(-50%,-50%) scale(1);}
+  100%{opacity:0; transform:translate(-50%,-50%) translateY(-14px) scale(0.3);}
+}
+
 /* ---------- comet / shooting star ---------- */
 .shooting-star{
   position:fixed;
