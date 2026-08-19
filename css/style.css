@@ -30,6 +30,16 @@ body{
   position:relative;
 }
 
+/* ---------- themed star cursor (desktop only) ---------- */
+@media (hover:hover) and (pointer:fine){
+  body{
+    cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M10 1 L12 8 L19 10 L12 12 L10 19 L8 12 L1 10 L8 8 Z' fill='%23f3dfa0' stroke='%23c9a45c' stroke-width='0.6'/%3E%3C/svg%3E") 10 10, auto;
+  }
+  a, button, .pill-btn, .miracle-title{
+    cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 1 L16.8 11.2 L27 14 L16.8 16.8 L14 27 L11.2 16.8 L1 14 L11.2 11.2 Z' fill='%23f3dfa0' stroke='%23c9a45c' stroke-width='0.7'/%3E%3C/svg%3E") 14 14, pointer;
+  }
+}
+
 ::selection{background:var(--gold-dim);color:var(--navy-deep);}
 
 /* ---------- starfield canvas ---------- */
@@ -257,7 +267,9 @@ body{
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  transition:box-shadow 0.3s ease, transform 0.2s ease;
+  transition:transform 0.2s ease;
+  --pulse:0;
+  box-shadow:0 0 calc(4px + var(--pulse) * 16px) calc(0px + var(--pulse) * 3px) rgba(233,200,116, calc(0.22 + var(--pulse) * 0.55));
 }
 .sound-toggle:hover{box-shadow:0 0 18px rgba(233,200,116,0.35);}
 .sound-toggle:active{transform:scale(0.94);}
@@ -389,6 +401,17 @@ body{
   color:var(--gold);
   margin:0.6rem 0 2rem;
   text-shadow:0 0 24px rgba(233,200,116,0.35);
+  display:inline-block;
+  transition:transform 0.2s ease;
+}
+.miracle-title.pop{
+  animation:miraclePop 0.5s ease;
+}
+@keyframes miraclePop{
+  0%{transform:scale(1);}
+  30%{transform:scale(1.18);}
+  60%{transform:scale(0.96);}
+  100%{transform:scale(1);}
 }
 
 /* constellation decorations */

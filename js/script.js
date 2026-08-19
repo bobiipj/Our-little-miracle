@@ -249,6 +249,59 @@
   })();
 
   /* ============================================================
+     SOUND-REACTIVE PULSE — the mute icon glows in time with the music
+  ============================================================ */
+  function initSoundPulse() {
+    const el = document.getElementById('bgMusic');
+    const btn = document.getElementById('soundToggle');
+    if (!el || !btn) return;
+    let started = false;
+
+    function tick(analyser, dataArray) {
+      analyser.getByteFrequencyData(dataArray);
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+      const level = Math.min(1, (sum / dataArray.length) / 100);
+      btn.style.setProperty('--pulse', level.toFixed(2));
+      requestAnimationFrame(() => tick(analyser, dataArray));
+    }
+
+    function setup() {
+      if (started) return;
+      started = true;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaElementSource(el);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        tick(analyser, dataArray);
+      } catch (err) {
+        console.warn('Sound-reactive pulse unavailable:', err);
+      }
+    }
+
+    el.addEventListener('play', setup);
+  }
+
+  /* ============================================================
+     MIRACLE EASTER EGG — tapping the reveal text bursts sparkles
+  ============================================================ */
+  function initMiracleEasterEgg() {
+    const title = document.querySelector('.miracle-title');
+    if (!title) return;
+    title.addEventListener('click', () => {
+      const rect = title.getBoundingClientRect();
+      burstStars(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      title.classList.remove('pop');
+      void title.offsetWidth; // restart the animation if tapped again quickly
+      title.classList.add('pop');
+    });
+  }
+
+  /* ============================================================
      GATE — tap the moon to begin: a "flying into the sky" transition
   ============================================================ */
   const gate = document.getElementById('gate');
@@ -351,4 +404,6 @@
   initSkyParallax();
   initCountdown();
   initScrollProgress();
+  initSoundPulse();
+  initMiracleEasterEgg();
 })();
