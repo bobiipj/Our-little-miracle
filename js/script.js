@@ -317,7 +317,7 @@
   function initSoundPulse() {
     const el = document.getElementById('bgMusic');
     const btn = document.getElementById('soundToggle');
-    if (!el || !btn) return;
+    if (!el || !btn) return { start() {} };
     let started = false;
 
     function tick(analyser, dataArray) {
@@ -329,7 +329,7 @@
       requestAnimationFrame(() => tick(analyser, dataArray));
     }
 
-    function setup() {
+    function start() {
       if (started) return;
       started = true;
       try {
@@ -340,13 +340,16 @@
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         source.connect(analyser);
         analyser.connect(audioCtx.destination);
+        // must resume synchronously within the user gesture, or Chrome/Safari
+        // leave the context suspended and the routed audio stays silent
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         tick(analyser, dataArray);
       } catch (err) {
         console.warn('Sound-reactive pulse unavailable:', err);
       }
     }
 
-    el.addEventListener('play', setup);
+    return { start };
   }
 
   /* ============================================================
@@ -372,6 +375,7 @@
   const mainEl = document.getElementById('main');
   const soundToggle = document.getElementById('soundToggle');
   const flashOverlay = document.getElementById('flashOverlay');
+  const SoundPulse = initSoundPulse();
   let muted = false;
 
   document.addEventListener('music-blocked', () => {
@@ -380,6 +384,7 @@
 
   enterBtn.addEventListener('click', () => {
     Music.start(); // call first, closest to the trusted click gesture
+    SoundPulse.start(); // must also start within this same gesture, or it can silence playback
     if (navigator.vibrate) navigator.vibrate(15); // tiny haptic "click" on the launch
     enterBtn.classList.add('launching');
     flashOverlay.classList.add('flashing');
@@ -469,6 +474,5 @@
   initSkyParallax();
   initCountdown();
   initScrollProgress();
-  initSoundPulse();
   initMiracleEasterEgg();
 })();
