@@ -171,8 +171,14 @@
 
     function start() {
       el.volume = 0;
-      el.play().catch((err) => console.warn('Playback blocked, will retry on toggle:', err));
-      fadeTo(targetVolume, 1800);
+      const p = el.play();
+      fadeTo(targetVolume, 500);
+      if (p && typeof p.then === 'function') {
+        p.catch((err) => {
+          console.warn('Playback blocked, will retry on sound-toggle tap:', err);
+          document.dispatchEvent(new CustomEvent('music-blocked'));
+        });
+      }
     }
 
     function mute() {
@@ -198,10 +204,14 @@
   const flashOverlay = document.getElementById('flashOverlay');
   let muted = false;
 
+  document.addEventListener('music-blocked', () => {
+    soundToggle.classList.add('needs-tap');
+  });
+
   enterBtn.addEventListener('click', () => {
+    Music.start(); // call first, closest to the trusted click gesture
     enterBtn.classList.add('launching');
     flashOverlay.classList.add('flashing');
-    Music.start();
 
     setTimeout(() => {
       gate.classList.add('gate-hidden');
@@ -213,6 +223,7 @@
   }, { once: true });
 
   soundToggle.addEventListener('click', () => {
+    soundToggle.classList.remove('needs-tap');
     muted = !muted;
     soundToggle.classList.toggle('muted', muted);
     soundToggle.setAttribute('aria-pressed', String(!muted));
