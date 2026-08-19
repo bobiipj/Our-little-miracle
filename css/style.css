@@ -541,6 +541,14 @@ body{
   backdrop-filter:blur(8px);
   box-shadow:0 20px 60px rgba(0,0,0,0.35);
 }
+.detail-card.highlight{
+  animation:detailGlow 1.7s ease-out;
+}
+@keyframes detailGlow{
+  0%{box-shadow:0 20px 60px rgba(0,0,0,0.35), 0 0 0 rgba(233,200,116,0);border-color:rgba(233,200,116,0.25);}
+  22%{box-shadow:0 20px 60px rgba(0,0,0,0.35), 0 0 55px 10px rgba(233,200,116,0.55);border-color:rgba(233,200,116,0.8);}
+  100%{box-shadow:0 20px 60px rgba(0,0,0,0.35), 0 0 0 rgba(233,200,116,0);border-color:rgba(233,200,116,0.25);}
+}
 .detail-row{
   display:flex;
   align-items:center;
@@ -672,6 +680,14 @@ body{
   border-radius:50%;
   background:var(--cream);
   box-shadow:0 0 12px 3px rgba(246,239,224,0.85), 0 0 20px 6px rgba(233,200,116,0.4);
+}
+.scroll-progress-comet.comet-hit{
+  animation:cometHit 0.7s ease-out;
+}
+@keyframes cometHit{
+  0%{transform:scale(1);}
+  30%{transform:scale(2.6);box-shadow:0 0 34px 12px rgba(246,239,224,1), 0 0 56px 18px rgba(233,200,116,0.75);}
+  100%{transform:scale(1);}
 }
 @media (max-width:600px){
   .scroll-progress{right:6px; top:6%; bottom:6%;}

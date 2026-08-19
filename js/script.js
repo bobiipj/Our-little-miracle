@@ -111,8 +111,7 @@
   /* ============================================================
      STAR-BURST — a little confetti of sparkles from a click point
   ============================================================ */
-  function burstStars(x, y) {
-    const count = 18;
+  function burstStars(x, y, count = 18) {
     for (let i = 0; i < count; i++) {
       const el = document.createElement('div');
       el.className = 'star-burst';
@@ -154,6 +153,35 @@
       if (!raf) raf = requestAnimationFrame(update);
     });
     update();
+  }
+
+  /* ============================================================
+     DETAILS ARRIVAL — the scroll comet "hits" the details card and
+     bursts into sparkles the first time it comes into view
+  ============================================================ */
+  function initDetailsArrival() {
+    const details = document.getElementById('details');
+    const comet = document.getElementById('scrollProgressComet');
+    const card = document.querySelector('.detail-card');
+    if (!details || !comet) return;
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+
+        const rect = comet.getBoundingClientRect();
+        comet.classList.add('comet-hit');
+        burstStars(rect.left + rect.width / 2, rect.top + rect.height / 2, 30);
+        setTimeout(() => comet.classList.remove('comet-hit'), 700);
+
+        if (card) {
+          card.classList.add('highlight');
+          setTimeout(() => card.classList.remove('highlight'), 1700);
+        }
+      });
+    }, { threshold: 0.35 });
+    io.observe(details);
   }
 
   /* ============================================================
@@ -328,6 +356,7 @@
       initRevealObserver();
       scheduleShootingStars();
       initStardustTrail();
+      initDetailsArrival();
       const progress = document.getElementById('scrollProgress');
       if (progress) progress.classList.add('visible');
     }, 550);
