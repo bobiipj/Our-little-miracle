@@ -242,6 +242,7 @@ body{
   font-size:1.35rem;
   color:var(--gold-soft);
 }
+.details-sub{margin:-0.8rem 0 1.8rem;}
 
 .panel.alt{background:linear-gradient(180deg, transparent, rgba(35,42,99,0.18), transparent);}
 
