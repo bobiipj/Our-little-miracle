@@ -185,6 +185,41 @@
   }
 
   /* ============================================================
+     CONSTELLATION DRAW-IN — story lines, rings, and the closing
+     heart trace themselves stroke-by-stroke as each panel reveals
+  ============================================================ */
+  function initConstellationDraw() {
+    const groups = [
+      { selector: '.const-lines line', overrideDasharray: true, stagger: 140 },
+      { selector: '.rings-svg .ring', overrideDasharray: true, stagger: 160 },
+      { selector: '.heart-line', overrideDasharray: false, stagger: 0 },
+    ];
+
+    groups.forEach(({ selector, overrideDasharray, stagger }) => {
+      document.querySelectorAll(selector).forEach((el, i) => {
+        if (typeof el.getTotalLength !== 'function') return;
+        const total = el.getTotalLength();
+        if (overrideDasharray) el.style.strokeDasharray = String(total);
+        el.style.strokeDashoffset = String(total);
+        el.style.transition = `stroke-dashoffset 1.1s ease ${i * stagger}ms`;
+      });
+    });
+
+    const drawSelector = '.const-lines line, .rings-svg .ring, .heart-line';
+    const panels = document.querySelectorAll('[data-reveal]');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.querySelectorAll(drawSelector).forEach((el) => {
+          el.style.strokeDashoffset = '0';
+        });
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.25 });
+    panels.forEach((p) => io.observe(p));
+  }
+
+  /* ============================================================
      STARDUST TRAIL — faint sparkles follow the pointer/finger
   ============================================================ */
   function initStardustTrail() {
@@ -354,6 +389,7 @@
       mainEl.classList.remove('hidden');
       mainEl.classList.add('revealed');
       initRevealObserver();
+      initConstellationDraw();
       scheduleShootingStars();
       initStardustTrail();
       initDetailsArrival();
