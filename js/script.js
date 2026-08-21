@@ -512,6 +512,25 @@
   }
 
   /* ============================================================
+     IN-APP BROWSER HINT — WhatsApp's built-in browser is known to
+     be more restrictive than real Safari/Chrome for audio playback.
+     If detected, nudge the guest to open in their real browser.
+  ============================================================ */
+  function initInAppBrowserHint() {
+    const ua = navigator.userAgent || '';
+    const isWhatsApp = /\bWhatsApp\b/i.test(ua);
+    if (!isWhatsApp) return;
+
+    const bar = document.createElement('div');
+    bar.className = 'inapp-hint';
+    bar.innerHTML =
+      '<span>For music &amp; the full experience, tap <strong>⋯</strong> above and choose <strong>Open in Browser</strong></span>' +
+      '<button type="button" aria-label="Dismiss">&times;</button>';
+    document.body.appendChild(bar);
+    bar.querySelector('button').addEventListener('click', () => bar.remove());
+  }
+
+  /* ============================================================
      INIT
   ============================================================ */
   initStarfield();
@@ -519,4 +538,5 @@
   initCountdown();
   initScrollProgress();
   initMiracleEasterEgg();
+  initInAppBrowserHint();
 })();
