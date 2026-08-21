@@ -284,6 +284,11 @@
         if (p < 1) fadeRaf = requestAnimationFrame(step);
       }
       fadeRaf = requestAnimationFrame(step);
+      // safety net: requestAnimationFrame can stall under mobile
+      // power-saving/background throttling, silently freezing the fade
+      // partway -- setTimeout is far more reliable, so it guarantees the
+      // target volume is reached even if the rAF loop never runs
+      setTimeout(() => { el.volume = target; }, duration + 80);
     }
 
     function start() {
@@ -299,57 +304,37 @@
     }
 
     function mute() {
-      fadeTo(0, 700);
+      // instant, not a fade: requestAnimationFrame (used by fadeTo) can stall
+      // under mobile power-saving/background throttling, which left the
+      // volume stuck mid-fade -- a real bug, not just a test-harness quirk
+      cancelAnimationFrame(fadeRaf);
+      el.volume = 0;
     }
 
     function unmute() {
       // if the initial autoplay attempt was blocked, this manual tap retries it
       if (el.paused) el.play().catch(() => {});
-      fadeTo(targetVolume, 700);
+      cancelAnimationFrame(fadeRaf);
+      el.volume = targetVolume;
     }
 
     return { start, mute, unmute };
   })();
 
   /* ============================================================
-     SOUND-REACTIVE PULSE — the mute icon glows in time with the music
+     SOUND PULSE — a simple looping CSS glow while music is playing.
+     Deliberately NOT wired to the Web Audio API: routing the
+     <audio> element through an AnalyserNode caused real playback
+     failures on mobile Safari, so this is decorative-only and can
+     never affect actual audio output.
   ============================================================ */
   function initSoundPulse() {
-    const el = document.getElementById('bgMusic');
     const btn = document.getElementById('soundToggle');
-    if (!el || !btn) return { start() {} };
-    let started = false;
-
-    function tick(analyser, dataArray) {
-      analyser.getByteFrequencyData(dataArray);
-      let sum = 0;
-      for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-      const level = Math.min(1, (sum / dataArray.length) / 100);
-      btn.style.setProperty('--pulse', level.toFixed(2));
-      requestAnimationFrame(() => tick(analyser, dataArray));
-    }
-
-    function start() {
-      if (started) return;
-      started = true;
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioCtx.createMediaElementSource(el);
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 64;
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
-        // must resume synchronously within the user gesture, or Chrome/Safari
-        // leave the context suspended and the routed audio stays silent
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        tick(analyser, dataArray);
-      } catch (err) {
-        console.warn('Sound-reactive pulse unavailable:', err);
-      }
-    }
-
-    return { start };
+    if (!btn) return { start() {}, stop() {} };
+    return {
+      start() { btn.classList.add('pulsing'); },
+      stop() { btn.classList.remove('pulsing'); },
+    };
   }
 
   /* ============================================================
@@ -408,7 +393,13 @@
     muted = !muted;
     soundToggle.classList.toggle('muted', muted);
     soundToggle.setAttribute('aria-pressed', String(!muted));
-    if (muted) Music.mute(); else Music.unmute();
+    if (muted) {
+      Music.mute();
+      SoundPulse.stop();
+    } else {
+      Music.unmute();
+      SoundPulse.start();
+    }
   });
 
   /* ============================================================

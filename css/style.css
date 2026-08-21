@@ -267,15 +267,23 @@ body{
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  transition:transform 0.2s ease;
-  --pulse:0;
-  box-shadow:0 0 calc(4px + var(--pulse) * 16px) calc(0px + var(--pulse) * 3px) rgba(233,200,116, calc(0.22 + var(--pulse) * 0.55));
+  transition:transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow:0 0 4px rgba(233,200,116,0.22);
 }
 .sound-toggle:hover{box-shadow:0 0 18px rgba(233,200,116,0.35);}
 .sound-toggle:active{transform:scale(0.94);}
 .sound-toggle .icon-off{display:none;}
 .sound-toggle.muted .icon-on{display:none;}
 .sound-toggle.muted .icon-off{display:block;}
+
+/* decorative-only glow while music is on -- not tied to real audio data */
+.sound-toggle.pulsing{
+  animation:soundPulse 2.6s ease-in-out infinite;
+}
+@keyframes soundPulse{
+  0%,100%{box-shadow:0 0 4px rgba(233,200,116,0.22);}
+  50%{box-shadow:0 0 16px 2px rgba(233,200,116,0.55);}
+}
 
 /* shown if autoplay got blocked, so guests know to tap for sound */
 .sound-toggle.needs-tap{
