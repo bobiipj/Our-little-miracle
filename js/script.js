@@ -293,54 +293,16 @@
 
     function start() {
       el.muted = false;
-      el.volume = 0; // has no effect on iOS Safari (see mute/unmute below); fine elsewhere
+      el.volume = 0;
       const p = el.play();
       fadeTo(targetVolume, 500);
       if (p && typeof p.then === 'function') {
-        p.catch((err) => {
-          console.warn('Playback blocked, will retry on sound-toggle tap:', err);
-          document.dispatchEvent(new CustomEvent('music-blocked'));
-        });
+        p.catch((err) => console.warn('Playback blocked:', err));
       }
     }
 
-    function mute() {
-      // iOS Safari silently ignores .volume entirely -- it's a permanent,
-      // documented WebKit restriction (volume is hardware-button-only there).
-      // .muted is the one property it actually respects, so that's the real
-      // mute mechanism; the volume fade below is just a bonus on platforms
-      // that do support it.
-      el.muted = true;
-      cancelAnimationFrame(fadeRaf);
-      el.volume = 0;
-    }
-
-    function unmute() {
-      // if the initial autoplay attempt was blocked, this manual tap retries it
-      if (el.paused) el.play().catch(() => {});
-      el.muted = false;
-      cancelAnimationFrame(fadeRaf);
-      el.volume = targetVolume;
-    }
-
-    return { start, mute, unmute };
+    return { start };
   })();
-
-  /* ============================================================
-     SOUND PULSE — a simple looping CSS glow while music is playing.
-     Deliberately NOT wired to the Web Audio API: routing the
-     <audio> element through an AnalyserNode caused real playback
-     failures on mobile Safari, so this is decorative-only and can
-     never affect actual audio output.
-  ============================================================ */
-  function initSoundPulse() {
-    const btn = document.getElementById('soundToggle');
-    if (!btn) return { start() {}, stop() {} };
-    return {
-      start() { btn.classList.add('pulsing'); },
-      stop() { btn.classList.remove('pulsing'); },
-    };
-  }
 
   /* ============================================================
      MIRACLE EASTER EGG — tapping the reveal text bursts sparkles
@@ -363,18 +325,10 @@
   const gate = document.getElementById('gate');
   const enterBtn = document.getElementById('enterBtn');
   const mainEl = document.getElementById('main');
-  const soundToggle = document.getElementById('soundToggle');
   const flashOverlay = document.getElementById('flashOverlay');
-  const SoundPulse = initSoundPulse();
-  let muted = false;
-
-  document.addEventListener('music-blocked', () => {
-    soundToggle.classList.add('needs-tap');
-  });
 
   enterBtn.addEventListener('click', () => {
     Music.start(); // call first, closest to the trusted click gesture
-    SoundPulse.start(); // must also start within this same gesture, or it can silence playback
     if (navigator.vibrate) navigator.vibrate(15); // tiny haptic "click" on the launch
     enterBtn.classList.add('launching');
     flashOverlay.classList.add('flashing');
@@ -392,21 +346,6 @@
       if (progress) progress.classList.add('visible');
     }, 550);
   }, { once: true });
-
-  soundToggle.addEventListener('click', () => {
-    soundToggle.classList.remove('needs-tap');
-    muted = !muted;
-    soundToggle.classList.toggle('muted', muted);
-    soundToggle.setAttribute('aria-pressed', String(!muted));
-    if (muted) {
-      Music.mute();
-      SoundPulse.stop();
-    } else {
-      Music.unmute();
-      SoundPulse.start();
-    }
-    DebugPanel.log('sound-toggle tapped, muted=' + muted);
-  });
 
   /* ============================================================
      DEBUG PANEL — visible only with ?debug=1 in the URL. Shows
