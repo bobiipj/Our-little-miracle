@@ -400,7 +400,54 @@
       Music.unmute();
       SoundPulse.start();
     }
+    DebugPanel.log('sound-toggle tapped, muted=' + muted);
   });
+
+  /* ============================================================
+     DEBUG PANEL — visible only with ?debug=1 in the URL. Shows
+     live <audio> state on-screen so issues can be diagnosed on a
+     phone without remote dev tools.
+  ============================================================ */
+  const DebugPanel = (() => {
+    const enabled = new URLSearchParams(location.search).has('debug');
+    if (!enabled) return { log() {} };
+
+    const el = document.createElement('div');
+    el.id = 'debugPanel';
+    el.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:999;' +
+      'background:rgba(0,0,0,0.88);color:#0f0;font:11px/1.5 monospace;' +
+      'padding:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;';
+    document.body.appendChild(el);
+
+    const audioEl = document.getElementById('bgMusic');
+    const lines = [];
+
+    function render() {
+      const state = [
+        'volume=' + audioEl.volume.toFixed(2),
+        'paused=' + audioEl.paused,
+        'muted(attr)=' + audioEl.muted,
+        'readyState=' + audioEl.readyState,
+        'networkState=' + audioEl.networkState,
+        'currentSrc=' + audioEl.currentSrc,
+        'error=' + (audioEl.error ? audioEl.error.code : 'none'),
+      ].join(' | ');
+      el.textContent = state + '\n---\n' + lines.slice(-12).join('\n');
+    }
+
+    function log(msg) {
+      lines.push(new Date().toISOString().slice(11, 19) + ' ' + msg);
+      render();
+    }
+
+    ['play', 'pause', 'volumechange', 'error', 'stalled', 'canplay', 'loadeddata']
+      .forEach((evt) => audioEl.addEventListener(evt, () => log('audio event: ' + evt)));
+
+    setInterval(render, 500);
+    render();
+
+    return { log };
+  })();
 
   /* ============================================================
      SCROLL REVEAL
