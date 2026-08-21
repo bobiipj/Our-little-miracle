@@ -414,9 +414,10 @@
 
     const el = document.createElement('div');
     el.id = 'debugPanel';
-    el.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:999;' +
+    el.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:999;' +
       'background:rgba(0,0,0,0.88);color:#0f0;font:11px/1.5 monospace;' +
-      'padding:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;';
+      'padding:8px;max-height:35vh;overflow:auto;white-space:pre-wrap;' +
+      'pointer-events:none;';
     document.body.appendChild(el);
 
     const audioEl = document.getElementById('bgMusic');
