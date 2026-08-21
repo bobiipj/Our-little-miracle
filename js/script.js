@@ -292,7 +292,8 @@
     }
 
     function start() {
-      el.volume = 0;
+      el.muted = false;
+      el.volume = 0; // has no effect on iOS Safari (see mute/unmute below); fine elsewhere
       const p = el.play();
       fadeTo(targetVolume, 500);
       if (p && typeof p.then === 'function') {
@@ -304,9 +305,12 @@
     }
 
     function mute() {
-      // instant, not a fade: requestAnimationFrame (used by fadeTo) can stall
-      // under mobile power-saving/background throttling, which left the
-      // volume stuck mid-fade -- a real bug, not just a test-harness quirk
+      // iOS Safari silently ignores .volume entirely -- it's a permanent,
+      // documented WebKit restriction (volume is hardware-button-only there).
+      // .muted is the one property it actually respects, so that's the real
+      // mute mechanism; the volume fade below is just a bonus on platforms
+      // that do support it.
+      el.muted = true;
       cancelAnimationFrame(fadeRaf);
       el.volume = 0;
     }
@@ -314,6 +318,7 @@
     function unmute() {
       // if the initial autoplay attempt was blocked, this manual tap retries it
       if (el.paused) el.play().catch(() => {});
+      el.muted = false;
       cancelAnimationFrame(fadeRaf);
       el.volume = targetVolume;
     }
